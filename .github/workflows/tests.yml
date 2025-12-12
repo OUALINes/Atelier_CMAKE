@@ -6,28 +6,79 @@ jobs:
   Compilation:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
+
       - name: Compilation
         run: |
-          last_directory=$(basename ${{ runner.workspace }})
-          git clone https://github.com/${{ github.repository }}.git
-          cd ./$last_directory
           mkdir build
           cd build
           cmake ..
           make
-          make test
 
-  Test_Add:
-    runs-on: ubuntu-latest
-    needs: Compilation
-    steps:
-      - name: Test fonction add
+      - name: Exécution des tests CMake
         run: |
-          last_directory=$(basename ${{ runner.workspace }})
-          git clone https://github.com/${{ github.repository }}.git
-          cd ./$last_directory
-          mkdir build
           cd build
-          cmake ..
-          make
+          ctest --output-on-failure
+
+  Test_add:
+    needs: Compilation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test add
+        run: |
+          mkdir build && cd build
+          cmake .. && make
           ./src/calculator add 10 5
+
+  Test_sub:
+    needs: Compilation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test sub
+        run: |
+          mkdir build && cd build
+          cmake .. && make
+          ./src/calculator sub 3 -2
+
+  Test_mul:
+    needs: Compilation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test mul
+        run: |
+          mkdir build && cd build
+          cmake .. && make
+          ./src/calculator mul 5 5
+
+  Test_div:
+    needs: Compilation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test div
+        run: |
+          mkdir build && cd build
+          cmake .. && make
+          ./src/calculator div 1 5
+
+  Test_car:
+    needs: Compilation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test car
+        run: |
+          mkdir build && cd build
+          cmake .. && make
+          ./src/calculator car 5
+
+  Deploy:
+    needs: [Test_add, Test_sub, Test_mul, Test_div, Test_car]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Déploiement de la solution
+        run: echo "Déploiement de la solution"
